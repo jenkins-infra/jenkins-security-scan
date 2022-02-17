@@ -1,0 +1,45 @@
+name: Jenkins Security Scan
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        description: Version of Java set up for the build. See actions/setup-java documentation for values.
+        type: string
+        required: false
+        default: 8
+      java-cache:
+        description: What kind of Java dependency cache to set up. See actions/setup-java documentation for values.
+        type: string
+        required: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out workflow and action
+        uses: actions/checkout@v2
+        with:
+          repository: jenkins-infra/jenkins-security-scan
+          # Once we start real versioning, this should check out a specific `ref`
+      - name: Check out Jenkins code scanning rules
+        uses: actions/checkout@v2
+        with:
+          repository: jenkins-infra/jenkins-codeql
+          ref: v2.8
+          path: rules
+          submodules: true
+      - name: Install CodeQL CLI
+        uses: ./.github/actions/fetch-codeql
+        with:
+          version: v2.8.1
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install jq
+      - name: Run Scan
+        uses: ./.github/actions/jenkins-codeql
+        with:
+          java-version: ${{ inputs.java-version }}
+          rules-dir: ${{ github.workspace }}/rules
+          java-cache: ${{ inputs.java-cache }}
