@@ -6,8 +6,7 @@ on:
       java-version:
         description: Version of Java set up for the build. See actions/setup-java documentation for values.
         type: string
-        required: false
-        default: 8
+        required: true
       java-cache:
         description: What kind of Java dependency cache to set up. See actions/setup-java documentation for values.
         type: string
