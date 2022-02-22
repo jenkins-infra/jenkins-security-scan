@@ -54,7 +54,7 @@ LGTM_INDEX_XML_MODE=all codeql database create --language=java --source-root="$C
 ghout "::endgroup::"
 
 ghout "::group::Analyze Database"
-codeql database analyze --format=sarifv2.1.0 --output="$OUTPUT_FILE" "$DB_DIR" "$RULES_SUB_DIR" || error "Failed to analyze database"
+codeql database analyze --sarif-add-query-help --format=sarifv2.1.0 --output="$OUTPUT_FILE" "$DB_DIR" "$RULES_SUB_DIR" || error "Failed to analyze database"
 ghout "::endgroup::"
 
 
