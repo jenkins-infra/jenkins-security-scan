@@ -16,29 +16,57 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out workflow and action
+      - name: Check out plugin
         uses: actions/checkout@v2
-        with:
-          repository: jenkins-infra/jenkins-security-scan
-          # Once we start real versioning, this should check out a specific `ref`
       - name: Check out Jenkins code scanning rules
         uses: actions/checkout@v2
         with:
           repository: jenkins-infra/jenkins-codeql
-          ref: v2.8
-          path: rules
+          path: jenkins-security-scan-rules
+          # TODO check out specific ref matching codeql version
           submodules: true
       - name: Install CodeQL CLI
-        uses: ./.github/actions/fetch-codeql
+        uses: jenkins-infra/fetch-codeql-action@v1
         with:
           version: v2.8.1
       - name: Install jq
         run: |
           sudo apt-get update
           sudo apt-get install jq
-      - name: Run Scan
-        uses: ./.github/actions/jenkins-codeql
+      - name: Set up Java
+        uses: actions/setup-java@v2
         with:
+          distribution: 'temurin'
           java-version: ${{ inputs.java-version }}
-          rules-dir: ${{ github.workspace }}/rules
-          java-cache: ${{ inputs.java-cache }}
+          cache: ${{ inputs.java-cache }}
+      - name: Run Scan
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CODEQL_RULES_DIR: ${{ github.workspace }}/jenkins-security-scan-rules
+          CHECKOUT_DIR: ${{ github.workspace }}
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          echo "::group::Create Database"
+          LGTM_INDEX_XML_MODE=all codeql database create --language=java --source-root="$CHECKOUT_DIR" "$GITHUB_WORKSPACE/database" || { echo "Failed to create database" >&2 ; exit 1 ; }
+          echo "::endgroup::"
+
+          echo "::group::Analyze Database"
+          codeql database analyze --sarif-add-query-help --format=sarifv2.1.0 --output=output.sarif "$GITHUB_WORKSPACE/database" "$CODEQL_RULES_DIR/jenkins/java/ql/" || { echo "Failed to analyze database" >&2 ; exit 1 ; }
+          echo "::endgroup::"
+
+          # Prevent conflicts with otherwise set up CodeQL scan
+          jq 'setpath(path(.runs[].tool.driver.name); "Jenkins Security Scan") | setpath(path(.runs[].tool.driver.organization); "Jenkins Project")' output.sarif > jenkins-security-scan.sarif
+      - name: Archive SARIF
+        uses: actions/upload-artifact@v2
+        with:
+          path: jenkins-security-scan.sarif
+          name: Jenkins Security Scan SARIF
+      - name: Upload Scan Result
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: jenkins-security-scan.sarif
+          category: Jenkins Security Scan
