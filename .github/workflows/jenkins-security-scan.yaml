@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: jenkins-infra/jenkins-security-scan
-          # Once we start real versioning, this should check out a specific `ref`
+          ref: v1
       - name: Check out Jenkins code scanning rules
         uses: actions/checkout@v2
         with:
