@@ -12,6 +12,13 @@ on:
         type: string
         required: false
 
+permissions:
+  security-events: write
+
+  # Private repo support
+  contents: read # For actions/checkout
+  actions: read # For github/codeql-action/upload-sarif
+
 jobs:
   scan:
     runs-on: ubuntu-latest
