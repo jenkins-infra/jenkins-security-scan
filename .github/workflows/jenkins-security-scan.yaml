@@ -35,7 +35,7 @@ jobs:
       - name: Install CodeQL CLI
         uses: jenkins-infra/fetch-codeql-action@v1
         with:
-          version: v2.8.1
+          version: v2.9.0
       - name: Install jq
         run: |
           sudo apt-get update
