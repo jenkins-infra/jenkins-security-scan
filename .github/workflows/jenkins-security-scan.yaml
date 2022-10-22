@@ -24,9 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out plugin
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Check out Jenkins code scanning rules
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: jenkins-infra/jenkins-codeql
           path: jenkins-security-scan-rules
@@ -41,7 +41,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install jq
       - name: Set up Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: ${{ inputs.java-version }}
@@ -68,7 +68,7 @@ jobs:
           # Prevent conflicts with otherwise set up CodeQL scan
           jq 'setpath(path(.runs[].tool.driver.name); "Jenkins Security Scan") | setpath(path(.runs[].tool.driver.organization); "Jenkins Project")' output.sarif > jenkins-security-scan.sarif
       - name: Archive SARIF
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: jenkins-security-scan.sarif
           name: Jenkins Security Scan SARIF
