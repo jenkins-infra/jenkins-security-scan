@@ -73,7 +73,7 @@ jobs:
           path: jenkins-security-scan.sarif
           name: Jenkins Security Scan SARIF
       - name: Upload Scan Result
-        uses: github/codeql-action/upload-sarif@v1
+        uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: jenkins-security-scan.sarif
           category: Jenkins Security Scan
