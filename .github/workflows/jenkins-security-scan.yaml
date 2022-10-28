@@ -55,6 +55,8 @@ jobs:
           set -o errexit
           set -o nounset
           set -o pipefail
+          
+          codeql pack install "$CODEQL_RULES_DIR/src/"
 
           echo "::group::Create Database"
           LGTM_INDEX_XML_MODE=all codeql database create --language=java --source-root="$CHECKOUT_DIR" "$GITHUB_WORKSPACE/database" || { echo "Failed to create database" >&2 ; exit 1 ; }
