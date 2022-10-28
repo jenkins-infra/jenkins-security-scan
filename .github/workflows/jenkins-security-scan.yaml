@@ -30,6 +30,7 @@ jobs:
         with:
           repository: jenkins-infra/jenkins-codeql
           path: jenkins-security-scan-rules
+          ref: modernize # TODO remove before merging
       - name: Install CodeQL CLI
         uses: jenkins-infra/fetch-codeql-action@v1
         with:
