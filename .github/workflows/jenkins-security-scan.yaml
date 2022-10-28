@@ -30,12 +30,10 @@ jobs:
         with:
           repository: jenkins-infra/jenkins-codeql
           path: jenkins-security-scan-rules
-          # TODO check out specific ref matching codeql version
-          submodules: true
       - name: Install CodeQL CLI
         uses: jenkins-infra/fetch-codeql-action@v1
         with:
-          version: v2.8.1
+          version: v2.11.2
       - name: Install jq
         run: |
           sudo apt-get update
@@ -62,7 +60,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Analyze Database"
-          codeql database analyze --sarif-add-query-help --format=sarifv2.1.0 --output=output.sarif "$GITHUB_WORKSPACE/database" "$CODEQL_RULES_DIR/jenkins/java/ql/" || { echo "Failed to analyze database" >&2 ; exit 1 ; }
+          codeql database analyze --sarif-add-query-help --format=sarifv2.1.0 --output=output.sarif "$GITHUB_WORKSPACE/database" "$CODEQL_RULES_DIR/src/" || { echo "Failed to analyze database" >&2 ; exit 1 ; }
           echo "::endgroup::"
 
           # Prevent conflicts with otherwise set up CodeQL scan
