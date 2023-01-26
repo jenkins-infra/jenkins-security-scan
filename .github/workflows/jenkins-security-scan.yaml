@@ -54,15 +54,16 @@ jobs:
           set -o errexit
           set -o nounset
           set -o pipefail
-          
+
           codeql pack install "$CODEQL_RULES_DIR/src/"
+          codeql pack download codeql/java-queries@0.4.2
 
           echo "::group::Create Database"
           LGTM_INDEX_XML_MODE=all codeql database create --language=java --source-root="$CHECKOUT_DIR" "$GITHUB_WORKSPACE/database" || { echo "Failed to create database" >&2 ; exit 1 ; }
           echo "::endgroup::"
 
           echo "::group::Analyze Database"
-          codeql database analyze --sarif-add-query-help --format=sarifv2.1.0 --output=output.sarif "$GITHUB_WORKSPACE/database" "$CODEQL_RULES_DIR/src/" || { echo "Failed to analyze database" >&2 ; exit 1 ; }
+          codeql database analyze --sarif-add-query-help --format=sarifv2.1.0 --output=output.sarif "$GITHUB_WORKSPACE/database" "$CODEQL_RULES_DIR/src/" codeql/java-queries:AlertSuppression.ql codeql/java-queries:AlertSuppressionAnnotations.ql || { echo "Failed to analyze database" >&2 ; exit 1 ; }
           echo "::endgroup::"
 
           # Prevent conflicts with otherwise set up CodeQL scan
