@@ -33,7 +33,7 @@ jobs:
       - name: Install CodeQL CLI
         uses: jenkins-infra/fetch-codeql-action@v1
         with:
-          version: v2.11.2
+          version: v2.11.2 # Keep version of codeql/java-queries in sync: https://github.com/github/codeql/blob/main/java/ql/src/CHANGELOG.md
       - name: Install jq
         run: |
           sudo apt-get update
