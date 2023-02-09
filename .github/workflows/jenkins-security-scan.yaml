@@ -30,7 +30,6 @@ jobs:
         with:
           repository: jenkins-infra/jenkins-codeql
           path: jenkins-security-scan-rules
-          ref: codeql-2.12.2
       - name: Install CodeQL CLI
         uses: jenkins-infra/fetch-codeql-action@v1
         with:
