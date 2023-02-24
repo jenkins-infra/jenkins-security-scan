@@ -1,5 +1,4 @@
 name: Jenkins Security Scan
-
 on:
   workflow_call:
     inputs:
@@ -11,14 +10,11 @@ on:
         description: What kind of Java dependency cache to set up. See actions/setup-java documentation for values.
         type: string
         required: false
-
 permissions:
   security-events: write
-
   # Private repo support
   contents: read # For actions/checkout
   actions: read # For github/codeql-action/upload-sarif
-
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -31,7 +27,7 @@ jobs:
           repository: jenkins-infra/jenkins-codeql
           path: jenkins-security-scan-rules
       - name: Install CodeQL CLI
-        uses: jenkins-infra/fetch-codeql-action@v1
+        uses: jenkins-infra/fetch-codeql-action@9c7fa19065a1a63d60f1f4337ec1e03955842f2a # v1
         with:
           version: v2.12.2 # Keep version of codeql/java-queries in sync: https://github.com/github/codeql/blob/main/java/ql/src/CHANGELOG.md
       - name: Install jq
@@ -78,7 +74,7 @@ jobs:
             jenkins-security-scan.sarif
           name: Jenkins Security Scan SARIF
       - name: Upload Scan Result
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@17573ee1cc1b9d061760f3a006fc4aac4f944fd5 # v2
         with:
           sarif_file: jenkins-security-scan.sarif
           category: Jenkins Security Scan
