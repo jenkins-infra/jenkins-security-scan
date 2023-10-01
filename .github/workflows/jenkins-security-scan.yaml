@@ -24,9 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out plugin
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check out Jenkins code scanning rules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: jenkins-infra/jenkins-codeql
           path: jenkins-security-scan-rules
