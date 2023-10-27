@@ -33,7 +33,7 @@ jobs:
       - name: Install CodeQL CLI
         uses: jenkins-infra/fetch-codeql-action@v1
         with:
-          version: v2.12.2 # Keep version of codeql/java-queries in sync: https://github.com/github/codeql/blob/main/java/ql/src/CHANGELOG.md
+          version: v2.15.1 # Keep version of codeql/java-queries in sync: https://github.com/github/codeql/blob/main/java/ql/src/CHANGELOG.md
       - name: Install jq
         run: |
           sudo apt-get update
@@ -56,7 +56,7 @@ jobs:
           set -o pipefail
 
           codeql pack install "$CODEQL_RULES_DIR/src/"
-          codeql pack download codeql/java-queries@0.5.2
+          codeql pack download codeql/java-queries@0.8.1
 
           echo "::group::Create Database"
           LGTM_INDEX_XML_MODE=all codeql database create --language=java --source-root="$CHECKOUT_DIR" "$GITHUB_WORKSPACE/database" || { echo "Failed to create database" >&2 ; exit 1 ; }
