@@ -71,7 +71,7 @@ jobs:
           # 2. Remove suppressed warnings because GitHub Code Scanning does not support inline suppressions
           jq 'setpath(path(.runs[].tool.driver.name); "Jenkins Security Scan") | setpath(path(.runs[].tool.driver.organization); "Jenkins Project") | del(.runs[].results[] | select( .suppressions | length != 0 ))' jenkins-security-scan-raw.sarif > jenkins-security-scan.sarif
       - name: Archive SARIF
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: |
             jenkins-security-scan-raw.sarif
