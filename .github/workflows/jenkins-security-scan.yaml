@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Provides `jq`
     steps:
       - name: Check out plugin
         uses: actions/checkout@v4
@@ -44,11 +44,6 @@ jobs:
             - codeql/java-queries:AlertSuppression.ql
             - codeql/java-queries:AlertSuppressionAnnotations.ql
 
-      - name: Install jq
-        run: |
-          sudo apt-get update
-          sudo apt-get install jq
-
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
 
@@ -70,8 +65,7 @@ jobs:
       - name: Archive SARIF
         uses: actions/upload-artifact@v4
         with:
-          path: |
-            *.sarif
+          path: '*.sarif'
           name: Jenkins Security Scan SARIF
 
       - name: Upload Scan Result
