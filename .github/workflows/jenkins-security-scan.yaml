@@ -45,6 +45,20 @@ jobs:
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
 
+      # TODO Remove or keep?
+      - name: Install CodeQL CLI
+        uses: jenkins-infra/fetch-codeql-action@v1
+        with:
+          version: v2.16.4 # Keep version of codeql/java-queries in sync: https://github.com/github/codeql/blob/main/java/ql/src/CHANGELOG.md
+
+      # TODO Remove or keep?
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ inputs.java-version }}
+          cache: ${{ inputs.java-cache }}
+
       - name: Run CodeQL
         id: generate-sarif
         uses: github/codeql-action/analyze@v3
