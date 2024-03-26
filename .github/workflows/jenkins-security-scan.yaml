@@ -26,13 +26,6 @@ jobs:
       - name: Check out plugin
         uses: actions/checkout@v4
 
-      # TODO Remove or keep?
-      - name: Install CodeQL CLI
-        uses: jenkins-infra/fetch-codeql-action@v1
-        with:
-          version: v2.16.4 # Keep version of codeql/java-queries in sync: https://github.com/github/codeql/blob/main/java/ql/src/CHANGELOG.md
-
-      # TODO Remove or keep?
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -78,6 +71,7 @@ jobs:
         with:
           path: |
             jenkins-security-scan.sarif
+            ../results/*.sarif
           name: Jenkins Security Scan SARIF
 
       - name: Upload Scan Result
