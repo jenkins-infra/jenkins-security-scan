@@ -25,58 +25,47 @@ jobs:
     steps:
       - name: Check out plugin
         uses: actions/checkout@v4
-      - name: Check out Jenkins code scanning rules
-        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          repository: jenkins-infra/jenkins-codeql
-          path: jenkins-security-scan-rules
-      - name: Install CodeQL CLI
-        uses: jenkins-infra/fetch-codeql-action@v1
-        with:
-          version: v2.16.4 # Keep version of codeql/java-queries in sync: https://github.com/github/codeql/blob/main/java/ql/src/CHANGELOG.md
+          languages: java
+          config: |
+            disable-default-queries: true
+            packs:
+            - jenkins-infra/jenkins-codeql@0.0.2
+            - codeql/java-queries:AlertSuppression.ql
+            - codeql/java-queries:AlertSuppressionAnnotations.ql
+
       - name: Install jq
         run: |
           sudo apt-get update
           sudo apt-get install jq
-      - name: Set up Java
-        uses: actions/setup-java@v4
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Run CodeQL
+        id: generate-sarif
+        uses: github/codeql-action/analyze@v3
         with:
-          distribution: 'temurin'
-          java-version: ${{ inputs.java-version }}
-          cache: ${{ inputs.java-cache }}
-      - name: Run Scan
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          CODEQL_RULES_DIR: ${{ github.workspace }}/jenkins-security-scan-rules
-          CHECKOUT_DIR: ${{ github.workspace }}
+          category: Jenkins Security Scan
+          upload: failure-only
+
+      - name: Process SARIF
+        # Process the generated SARIF file:
+        # 1. Prevent conflicts with otherwise set up CodeQL scan by renaming the tool driver
+        # 2. Remove suppressed warnings because GitHub Code Scanning does not support inline suppressions
         run: |
-          set -o errexit
-          set -o nounset
-          set -o pipefail
+          jq 'setpath(path(.runs[].tool.driver.name); "Jenkins Security Scan") | setpath(path(.runs[].tool.driver.organization); "Jenkins Project") | del(.runs[].results[] | select( .suppressions | length != 0 ))' ../results/*.sarif > jenkins-security-scan.sarif
 
-          codeql pack install "$CODEQL_RULES_DIR/src/"
-          codeql pack download codeql/java-queries@0.8.10
-
-          echo "::group::Create Database"
-          LGTM_INDEX_XML_MODE=all codeql database create --language=java --source-root="$CHECKOUT_DIR" "$GITHUB_WORKSPACE/database" || { echo "Failed to create database" >&2 ; exit 1 ; }
-          echo "::endgroup::"
-
-          echo "::group::Analyze Database"
-          codeql database analyze --sarif-add-query-help --format=sarifv2.1.0 --output=jenkins-security-scan-raw.sarif "$GITHUB_WORKSPACE/database" "$CODEQL_RULES_DIR/src/" codeql/java-queries:AlertSuppression.ql codeql/java-queries:AlertSuppressionAnnotations.ql || { echo "Failed to analyze database" >&2 ; exit 1 ; }
-          echo "::endgroup::"
-
-          # Process the generated SARIF file:
-          # 1. Prevent conflicts with otherwise set up CodeQL scan by renaming the tool driver
-          # 2. Remove suppressed warnings because GitHub Code Scanning does not support inline suppressions
-          jq 'setpath(path(.runs[].tool.driver.name); "Jenkins Security Scan") | setpath(path(.runs[].tool.driver.organization); "Jenkins Project") | del(.runs[].results[] | select( .suppressions | length != 0 ))' jenkins-security-scan-raw.sarif > jenkins-security-scan.sarif
       - name: Archive SARIF
         uses: actions/upload-artifact@v4
         with:
           path: |
-            jenkins-security-scan-raw.sarif
             jenkins-security-scan.sarif
           name: Jenkins Security Scan SARIF
+
       - name: Upload Scan Result
         uses: github/codeql-action/upload-sarif@v3
         with:
