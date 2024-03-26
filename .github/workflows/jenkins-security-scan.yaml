@@ -64,8 +64,8 @@ jobs:
         # 1. Prevent conflicts with otherwise set up CodeQL scan by renaming the tool driver
         # 2. Remove suppressed warnings because GitHub Code Scanning does not support inline suppressions
         run: |
-          jq 'setpath(path(.runs[].tool.driver.name); "Jenkins Security Scan") | setpath(path(.runs[].tool.driver.organization); "Jenkins Project") | del(.runs[].results[] | select( .suppressions | length != 0 ))' ../results/*.sarif > jenkins-security-scan.sarif
-          mv -v ../results/*.sarif .
+          jq 'setpath(path(.runs[].tool.driver.name); "Jenkins Security Scan") | setpath(path(.runs[].tool.driver.organization); "Jenkins Project") | del(.runs[].results[] | select( .suppressions | length != 0 ))' ../results/java.sarif > jenkins-security-scan.sarif
+          mv -v ../results/java.sarif .
 
       - name: Archive SARIF
         uses: actions/upload-artifact@v4
