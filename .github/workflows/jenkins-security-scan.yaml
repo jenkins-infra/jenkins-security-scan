@@ -6,7 +6,7 @@ on:
       java-version:
         description: Version of Java set up for the build. See actions/setup-java documentation for values.
         type: string
-        required: true
+        required: false
       java-cache:
         description: What kind of Java dependency cache to set up. See actions/setup-java documentation for values.
         type: string
@@ -30,7 +30,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: ${{ inputs.java-version }}
+          java-version: ${{ inputs.java-version || '17' }}
           cache: ${{ inputs.java-cache }}
 
       - name: Initialize CodeQL
