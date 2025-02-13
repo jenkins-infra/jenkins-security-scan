@@ -56,7 +56,7 @@ jobs:
           config: |
             disable-default-queries: true
             packs:
-            - jenkins-infra/jenkins-codeql@0.0.2
+            - jenkins-infra/jenkins-codeql@0.0.3
             - codeql/java-queries:AlertSuppression.ql
             - codeql/java-queries:AlertSuppressionAnnotations.ql
 
